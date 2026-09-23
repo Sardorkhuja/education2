@@ -1,0 +1,119 @@
+/* Education 1.1: pure-black canvas, neutral elevated surfaces, purposeful motion.
+   Apple HIG Motion / Materials; Meet Liquid Glass (WWDC25); Design guide WWDC26.
+   Web implementation, not Apple's native material or SF Symbols assets. */
+:root {
+  --ease-out: cubic-bezier(.2,.75,.25,1);
+  --spring: cubic-bezier(.16,1,.3,1);
+  --selection: rgba(0,0,0,.065);
+}
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --surface: #151515;
+  --surface-2: #1c1c1e;
+  --text: #f5f5f7;
+  --muted: #aaaab0;
+  --subtle: #939398;
+  --line: #303033;
+  --glass: rgba(17,17,17,.92);
+  --hover: rgba(255,255,255,.075);
+  --blue: #78b8ff;
+  --blue-soft: #242426;
+  --shadow: 0 10px 36px rgba(0,0,0,.2);
+  --selection: rgba(255,255,255,.10);
+}
+html, body, #app, .app-layout { background-color: var(--bg); }
+body { overflow-x: clip; }
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .bottom-tabs { background: rgba(14,14,14,.94); border-color: #343436; }
+:root[data-theme="dark"] .welcome-panel,
+:root[data-theme="dark"] .sheet { background: #151515; }
+:root[data-theme="dark"] .today.day-column { background: #1c1c1e; }
+:root[data-theme="dark"] .notice-strip { background: #1c1c1e; color: #bbbbbf; }
+:root[data-theme="dark"] .form-error { background: #321818; color: #ffaaa2; }
+/* Never animate geometry while typing. Feedback uses composited transforms. */
+.primary, .secondary, .text-button, .icon-button, .avatar, .calendar-event,
+.course-card, .add-course-card, .nav-item, .sidebar-course, .bottom-tabs>button,
+.segment>button, .status-check, .mobile-date-strip .day-head {
+  transition: transform 260ms var(--spring), opacity 140ms ease,
+    background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+:is(.primary,.secondary,.text-button,.icon-button,.avatar,.calendar-event,.course-card,
+.add-course-card,.nav-item,.sidebar-course,.bottom-tabs>button,.segment>button,
+.status-check,.mobile-date-strip .day-head):active { transform: scale(.97); }
+@media (hover:hover) and (pointer:fine) {
+  :is(.primary,.secondary,.icon-button,.nav-item,.bottom-tabs>button):active { transform:scale(.985); }
+  .course-card:hover { transform:translateY(-2px); border-color:var(--subtle); }
+}
+.switch:after { transition:transform 300ms var(--spring); }
+.toggle-row input:active+.switch:after { width:25px; }
+.toggle-row input:checked:active+.switch:after { transform:translateX(14px); }
+/* A single moving selection lens, not independent blinking tab backgrounds. */
+.nav-list, .segment { position:relative; isolation:isolate; }
+.bottom-tabs { isolation:isolate; }
+.nav-list.ui-has-selection .nav-item.active,
+.bottom-tabs.ui-has-selection>button.active,
+.segment.ui-has-selection>button.active { background:transparent; box-shadow:none; }
+.nav-list>button, .segment>button, .bottom-tabs>button { position:relative; z-index:1; }
+.ui-selection { position:absolute; pointer-events:none; z-index:0; border-radius:12px;
+  background:var(--selection); border:1px solid rgba(127,127,127,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07); transform-origin:0 0; }
+.segment>.ui-selection { border-radius:8px; background:var(--surface); box-shadow:0 1px 4px #00000012; }
+.bottom-tabs>.ui-selection { border-radius:23px; }
+.bottom-tabs>button.active { color:var(--blue); }
+.mobile-date-strip .day-head.selected { background:var(--selection); }
+.mobile-date-strip .day-head { border-radius:16px; }
+/* Discrete transitions keep the native dialog's focus trap/top layer on exit.
+   Browsers without support still have working, immediately closing dialogs. */
+.sheet {
+  opacity:0; transform:translateY(14px) scale(.975);
+  transition:opacity 180ms ease, transform 340ms var(--spring),
+    display 340ms allow-discrete, overlay 340ms allow-discrete;
+  transform-origin:var(--sheet-origin,50% 65%);
+}
+.sheet[open] { opacity:1; transform:translateY(0) scale(1); }
+@starting-style { .sheet[open] { opacity:0; transform:translateY(14px) scale(.975); } }
+.sheet::backdrop {
+  background:rgba(0,0,0,0); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+  transition:background-color 240ms ease, display 340ms allow-discrete, overlay 340ms allow-discrete;
+}
+.sheet[open]::backdrop { background:rgba(0,0,0,.58); }
+@starting-style { .sheet[open]::backdrop { background:rgba(0,0,0,0); } }
+.sheet.ui-dragging { transition:none; }
+.sheet-grabber { display:none; }
+.toast { transition:opacity 160ms ease, transform 280ms var(--spring); }
+.toast .icon { transform-origin:50% 50%; }
+@media(max-width:700px) {
+  .bottom-tabs { border-radius:32px; padding:6px; gap:2px; bottom:calc(10px + env(safe-area-inset-bottom)); }
+  .bottom-tabs>button { min-height:52px; border-radius:24px; }
+  .sheet, .sheet.wide { width:100%; max-height:92dvh; margin:0; position:fixed;
+    inset:auto 0 0; border-radius:28px 28px 0 0; border-bottom:0;
+    transform:translateY(100%); transform-origin:50% 100%;
+    transition:opacity 200ms ease, transform 440ms var(--spring),
+      display 440ms allow-discrete, overlay 440ms allow-discrete; }
+  .sheet[open] { transform:translateY(0); }
+  @starting-style { .sheet[open] { opacity:.5; transform:translateY(100%); } }
+  .sheet-header { position:relative; padding-top:30px; touch-action:pan-x; user-select:none; }
+  .sheet-grabber { display:block; position:absolute; top:10px; left:calc(50% - 18px);
+    width:36px; height:5px; border-radius:5px; background:var(--subtle); opacity:.55; }
+  .sheet form { max-height:calc(92dvh - 100px); }
+  .sheet-footer { padding-bottom:calc(16px + env(safe-area-inset-bottom)); }
+  .sheet-header .icon-button { width:44px; height:44px; min-width:44px; min-height:44px; }
+}
+/* Accessibility settings affect both CSS motion and Web Animations. */
+:root.no-motion *, :root.no-motion *::before, :root.no-motion *::after,
+:root.no-motion .sheet::backdrop { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+:root.no-motion :is(button:active,.course-card:hover) { transform:none!important; }
+:root.no-motion .sheet[open] { transform:none!important; }
+:root.no-transparency .sheet::backdrop { backdrop-filter:none; -webkit-backdrop-filter:none; }
+@media(prefers-reduced-motion:reduce) {
+  *, *::before, *::after, .sheet::backdrop { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+  button:active, .course-card:hover, .sheet[open] { transform:none!important; }
+}
+@media(prefers-reduced-transparency:reduce) {
+  .sheet::backdrop { backdrop-filter:none; -webkit-backdrop-filter:none; }
+}
+@media(prefers-contrast:more) {
+  :root[data-theme="dark"] { --muted:#dddddf; --subtle:#cccccf; --line:#888; }
+  .ui-selection { border-color:var(--text); }
+}
+:root[data-theme="dark"] .toast { background:#242426; color:#f5f5f7; border:1px solid #3a3a3c; }
