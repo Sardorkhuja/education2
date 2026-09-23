@@ -4,6 +4,8 @@
  * build on source drift instead of silently shipping a partially patched UI.
  * The deployed module contains no preset course data or import entry points.
  */
+import { applyClassTiming } from './class-timing.mjs';
+
 export function applyPresentation(source, styles, runtime) {
   function once(oldText, newText) {
     const count = source.split(oldText).length - 1;
@@ -13,7 +15,7 @@ export function applyPresentation(source, styles, runtime) {
   once('<html lang="en">', '<html lang="en" data-theme="dark">');
   once('<meta name="theme-color" content="#f5f5f7">', '<meta name="theme-color" content="#000000">');
   once('name="apple-mobile-web-app-status-bar-style" content="default"', 'name="apple-mobile-web-app-status-bar-style" content="black-translucent"');
-  once("const APP_VERSION = '1.0.1';", "const APP_VERSION = '1.1.0';");
+  once("const APP_VERSION = '1.0.1';", "const APP_VERSION = '1.1.1';");
   once("theme:'system',reducedTransparency:false", "theme:'dark',reducedTransparency:false,reducedMotion:false");
   once("dark?'#141416':'#f5f5f7';}", "dark?'#000000':'#f5f5f7';uiMotion.preferences();}");
   const seeds = source.match(/\/\/ ---- seed\.js ----[\s\S]*?(?=\/\/ ---- storage\.js ----)/);
@@ -47,5 +49,5 @@ export function applyPresentation(source, styles, runtime) {
   once('</style>', '\n' + styles + '\n</style>');
   once('\nboot();', '\n' + runtime + '\nboot();');
   if (/COURSE_TEMPLATES|instantiateTemplates|openTemplates|data-action="templates"/.test(source)) throw new Error('Unexpected preset entry point in release.');
-  return source;
+  return applyClassTiming(source);
 }
