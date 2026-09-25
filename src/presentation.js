@@ -134,7 +134,56 @@ const uiMotion = (() => {
       if (parseFloat(target) > 0) play(circle,[{strokeDasharray:'0 207.345'},{strokeDasharray:target}],460,'cubic-bezier(.2,.75,.25,1)');
     }
   }
+  let agendaSwipe = null;
+  let suppressClickUntil = 0;
+  function moveScheduleDay(delta) {
+    const next = addDays(state.day, delta);
+    state.day = next;
+    state.week = weekStart(next, profile().weekStarts ?? 1);
+    intent = {action:delta > 0 ? 'next-day-swipe' : 'previous-day-swipe',at:performance.now()};
+    renderApp(true);
+  }
+  root.addEventListener('pointerdown', event => {
+    if (!smallScreen.matches || state.view !== 'schedule' || event.button !== 0) return;
+    const area = event.target.closest?.('.mobile-agenda');
+    if (!area) return;
+    agendaSwipe = {id:event.pointerId,startX:event.clientX,startY:event.clientY,
+      lastX:event.clientX,lastY:event.clientY,area,horizontal:false};
+  }, {passive:true});
+  root.addEventListener('pointermove', event => {
+    if (!agendaSwipe || event.pointerId !== agendaSwipe.id) return;
+    const dx = event.clientX - agendaSwipe.startX;
+    const dy = event.clientY - agendaSwipe.startY;
+    agendaSwipe.lastX = event.clientX; agendaSwipe.lastY = event.clientY;
+    if (!agendaSwipe.horizontal) {
+      if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) { agendaSwipe = null; return; }
+      if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+        agendaSwipe.horizontal = true;
+        try { agendaSwipe.area.setPointerCapture(event.pointerId); } catch {}
+      }
+    }
+    if (!agendaSwipe?.horizontal || reduced()) return;
+    const offset = Math.max(-34, Math.min(34, dx * .18));
+    agendaSwipe.area.style.transform = `translateX(${offset}px)`;
+    agendaSwipe.area.style.opacity = String(1 - Math.min(.12, Math.abs(dx) / 900));
+  }, {passive:true});
+  function finishAgendaSwipe(event, cancelled = false) {
+    if (!agendaSwipe || event.pointerId !== agendaSwipe.id) return;
+    const swipe = agendaSwipe; agendaSwipe = null;
+    swipe.area.style.removeProperty('transform'); swipe.area.style.removeProperty('opacity');
+    if (cancelled || !swipe.horizontal) return;
+    const dx = swipe.lastX - swipe.startX;
+    const dy = swipe.lastY - swipe.startY;
+    if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+    suppressClickUntil = performance.now() + 420;
+    moveScheduleDay(dx < 0 ? 1 : -1);
+  }
+  root.addEventListener('pointerup', event => finishAgendaSwipe(event), {passive:true});
+  root.addEventListener('pointercancel', event => finishAgendaSwipe(event, true), {passive:true});
   document.addEventListener('click', event => {
+    if (performance.now() < suppressClickUntil) {
+      event.preventDefault(); event.stopImmediatePropagation(); return;
+    }
     const target = event.target.closest?.('[data-action]');
     if (target) intent = {action:target.dataset.action,element:target,at:performance.now()};
   }, true);
