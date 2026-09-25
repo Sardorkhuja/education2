@@ -84,7 +84,7 @@ test('Time strings cannot inject HTML and storage/auth code is unchanged', () =>
   assert.doesNotMatch(bad, /<img|onerror/);
   const dataLayer = s => s.split('// ---- storage.js ----')[1].split('// ---- ui.js ----')[0];
   assert.equal(dataLayer(output), dataLayer(source));
-  assert.match(output, /const APP_VERSION = '1.1.2'/);
+  assert.match(output, /const APP_VERSION = '1.1.3'/);
 });
 test('The build fails safely if a future renderer changes the timing anchor', () => {
   assert.throws(() => applyClassTiming(source.replace('function renderCalendarEvent(', 'function renamedRenderer(')), /Class timing anchor/);
