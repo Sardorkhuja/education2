@@ -137,8 +137,9 @@ export function applyDetailViews(source) {
   if (literalEditActions !== 6) throw new Error(`Expected six direct item-open actions, found ${literalEditActions}.`);
   source = source.replaceAll('data-action="edit-item"', 'data-action="view-item"');
   once(`data-action="${isDeadline?'edit-item':'occurrence'}"`, `data-action="${isDeadline?'view-item':'occurrence'}"`);
-  once('function openItem(', `${detailRow.toString()}\n${openItemDetails.toString()}\n${openOccurrence.toString()}\nfunction openItem(`);
+  // Rename the existing editor before injecting the new read-only occurrence viewer.
   once('function openOccurrence(id,date){', 'function editOccurrence(id,date){');
+  once('function openItem(', `${detailRow.toString()}\n${openItemDetails.toString()}\n${openOccurrence.toString()}\nfunction openItem(`);
   once("if(r.data.status==='graded'){openItem(id);return;}", "if(r.data.status==='graded'){openItemDetails(id);return;}");
   once("    case 'edit-item':openItem(id);break;\n", "    case 'view-item':openItemDetails(id);break;\n    case 'edit-item':openItem(id);break;\n");
   once("    case 'occurrence':openOccurrence(id,button.dataset.date);break;\n", "    case 'occurrence':openOccurrence(id,button.dataset.date);break;\n    case 'edit-occurrence':editOccurrence(id,button.dataset.date);break;\n");
