@@ -31,6 +31,14 @@ test('Every normal render path goes through the interruptible presentation layer
   assert.doesNotMatch(render,/root.innerHTML=/);
   assert.match(output,/uiMotion.closeSheet\(dialog\);dialog.close\(\)/);
 });
+test('Mobile schedule supports horizontal day swipes without taking over vertical scrolling',()=>{
+  assert.match(css,/\.mobile-agenda \{ touch-action:pan-y; overscroll-behavior-x:contain; \}/);
+  assert.match(js,/function moveScheduleDay\(delta\)/);
+  assert.match(js,/root\.addEventListener\('pointerdown'/);
+  assert.match(js,/Math\.abs\(dx\) < 48/);
+  assert.match(js,/moveScheduleDay\(dx < 0 \? 1 : -1\)/);
+  assert.match(js,/suppressClickUntil = performance\.now\(\) \+ 420/);
+});
 test('Unknown source changes fail closed instead of applying an incomplete release',()=>{
   assert.throws(()=>applyPresentation(source.replace('renderApp(true);openTemplates();','renderApp(true); customImport();'),css,js),/Presentation anchor/);
 });

@@ -21,7 +21,7 @@ export function classTimingHTML(item, agenda = false) {
   const time = value => `<time datetime="${value}">${value}</time>`;
   const durationText = duration ? `<span aria-hidden="true">${duration}</span><span class="sr-only">Duration: ${spoken}</span>` : '';
   if (agenda) {
-    return `<div class="agenda-time">${start ? time(start) : 'Time TBC'}${end ? `<small><span class="sr-only">Ends at </span>${time(end)}</small>` : ''}${duration ? `<small class="agenda-duration" title="Duration: ${spoken}">${durationText}</small>` : ''}</div>`;
+    return `<div class="agenda-time"><span class="agenda-time-start">${start ? time(start) : 'Time TBC'}</span>${end ? `<span class="agenda-time-end"><span class="sr-only">Ends at </span>${time(end)}</span>` : ''}${duration ? `<small class="agenda-duration" title="Duration: ${spoken}">${durationText}</small>` : ''}</div>`;
   }
   const range = start ? `${time(start)}${end ? `<span class="class-time-end"><span aria-hidden="true">\u2013</span><span class="sr-only"> to </span>${time(end)}</span>` : ''}`
     : end ? `Ends ${time(end)}` : 'Time to confirm';
@@ -29,19 +29,24 @@ export function classTimingHTML(item, agenda = false) {
 }
 
 export const classTimingStyles = `
-/* Start/end stay together when space permits; duration aligns to the right.
-   Allow wrapping in narrow week columns instead of clipping either time. */
+/* Keep the start/end range on one line and place duration beneath it. */
 .calendar-event .class-timing {
-  display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between;
-  gap:2px 6px; font-size:10px; line-height:1.4; font-variant-numeric:tabular-nums;
+  display:flex; flex-direction:column; align-items:flex-start;
+  gap:3px; font-size:10px; line-height:1.4; font-variant-numeric:tabular-nums;
 }
 .class-time-range { display:inline-flex; flex-wrap:wrap; min-width:0; max-width:100%; }
 .class-time-range time, .class-time-end { white-space:nowrap; }
 .class-duration {
-  margin-inline-start:auto; white-space:nowrap; font-size:9px; font-weight:500;
+  margin-inline-start:0; white-space:nowrap; font-size:9px; font-weight:500; opacity:.84;
 }
+.agenda-time .agenda-time-start,
+.agenda-time .agenda-time-end {
+  display:block; font-size:inherit; line-height:1.25; white-space:nowrap;
+}
+.agenda-time .agenda-time-end { margin-top:4px; }
 .agenda-time .agenda-duration {
-  color:var(--accent, var(--muted)); font-weight:500; white-space:nowrap;
+  color:var(--accent, var(--muted)); font-size:10px; font-weight:500;
+  margin-top:6px; white-space:nowrap;
 }
 `;
 
