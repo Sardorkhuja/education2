@@ -5,6 +5,7 @@
  * The deployed module contains no preset course data or import entry points.
  */
 import { applyClassTiming } from './class-timing.mjs';
+import { applyDetailViews } from './detail-view.mjs';
 
 export function applyPresentation(source, styles, runtime) {
   function once(oldText, newText) {
@@ -49,5 +50,5 @@ export function applyPresentation(source, styles, runtime) {
   once('</style>', '\n' + styles + '\n</style>');
   once('\nboot();', '\n' + runtime + '\nboot();');
   if (/COURSE_TEMPLATES|instantiateTemplates|openTemplates|data-action="templates"/.test(source)) throw new Error('Unexpected preset entry point in release.');
-  return applyClassTiming(source);
+  return applyDetailViews(applyClassTiming(source));
 }
