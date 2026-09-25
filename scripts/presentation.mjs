@@ -15,7 +15,7 @@ export function applyPresentation(source, styles, runtime) {
   once('<html lang="en">', '<html lang="en" data-theme="dark">');
   once('<meta name="theme-color" content="#f5f5f7">', '<meta name="theme-color" content="#000000">');
   once('name="apple-mobile-web-app-status-bar-style" content="default"', 'name="apple-mobile-web-app-status-bar-style" content="black-translucent"');
-  once("const APP_VERSION = '1.0.1';", "const APP_VERSION = '1.1.1';");
+  once("const APP_VERSION = '1.0.1';", "const APP_VERSION = '1.1.2';");
   once("theme:'system',reducedTransparency:false", "theme:'dark',reducedTransparency:false,reducedMotion:false");
   once("dark?'#141416':'#f5f5f7';}", "dark?'#000000':'#f5f5f7';uiMotion.preferences();}");
   const seeds = source.match(/\/\/ ---- seed\.js ----[\s\S]*?(?=\/\/ ---- storage\.js ----)/);
