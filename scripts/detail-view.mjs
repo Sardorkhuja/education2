@@ -136,7 +136,7 @@ export function applyDetailViews(source) {
   const literalEditActions = (source.match(/data-action="edit-item"/g) || []).length;
   if (literalEditActions !== 6) throw new Error(`Expected six direct item-open actions, found ${literalEditActions}.`);
   source = source.replaceAll('data-action="edit-item"', 'data-action="view-item"');
-  once(`data-action="${isDeadline?'edit-item':'occurrence'}"`, `data-action="${isDeadline?'view-item':'occurrence'}"`);
+  once("data-action=\"${isDeadline?'edit-item':'occurrence'}\"", "data-action=\"${isDeadline?'view-item':'occurrence'}\"");
   // Rename the existing editor before injecting the new read-only occurrence viewer.
   once('function openOccurrence(id,date){', 'function editOccurrence(id,date){');
   once('function openItem(', `${detailRow.toString()}\n${openItemDetails.toString()}\n${openOccurrence.toString()}\nfunction openItem(`);
