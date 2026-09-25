@@ -34,7 +34,7 @@ test('Unknown or invalid times never invent a duration or an overnight class', (
   assert.match(classTimingHTML({}), /Time to confirm/);
   assert.match(classTimingHTML({endTime:'11:56'}), /Ends <time/);
 });
-test('Week cards render both times, duration, and readable assistive labels', () => {
+test('Week cards render the time range first and duration beneath it', () => {
   const html = context.renderCalendarEvent(example);
   assert.match(html, /datetime="10:26"/);
   assert.match(html, /datetime="11:56"/);
@@ -43,13 +43,19 @@ test('Week cards render both times, duration, and readable assistive labels', ()
   assert.match(html, /Duration: 1 hour 30 minutes/);
   assert.match(html, /data-action="occurrence"/);
   assert.match(html, /data-date="2026-09-24"/);
+  assert.match(output, /\.calendar-event \.class-timing \{[\s\S]*?flex-direction:column/);
+  assert.match(output, /\.class-duration \{[\s\S]*?margin-inline-start:0/);
 });
-test('Day/iPhone agenda uses the same calculation without hiding the end time', () => {
+test('Day/iPhone agenda gives start and end equal emphasis and keeps duration smaller', () => {
   const html = classTimingHTML(example, true);
   assert.match(html, /class="agenda-time"/);
+  assert.match(html, /class="agenda-time-start"/);
+  assert.match(html, /class="agenda-time-end"/);
   assert.match(html, /class="agenda-duration"/);
   assert.match(html, /datetime="11:56"/);
   assert.match(html, /1h 30m/);
+  assert.match(output, /\.agenda-time \.agenda-time-start,[\s\S]*?font-size:inherit/);
+  assert.match(output, /\.agenda-time \.agenda-duration \{[\s\S]*?font-size:10px/);
   assert.match(output, /item.category==='class'\?classTimingHTML\(item,true\)/);
 });
 test('Deadline cards retain their exact previous markup and never get class duration', () => {
